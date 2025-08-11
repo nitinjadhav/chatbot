@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Indian Income Tax Calculator - By NJ</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            overflow: hidden;
+            animation: slideIn 0.8s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #ffa726);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 40px;
+        }
+
+        .form-section {
+            background: #f8f9ff;
+            padding: 30px;
+            border-radius: 15px;
+            border: 2px dashed #e0e4ff;
+        }
+
+        .results-section {
+            background: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            border: 1px solid #e0e4ff;
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 30px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 2px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e4ff;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .file-upload {
+            border: 2px dashed #667eea;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+        }
+
+        .file-upload:hover {
+            border-color: #ff6b6b;
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.05), rgba(255, 167, 38, 0.05));
+            transform: translateY(-2px);
+        }
+
+        .file-upload input {
+            display: none;
+        }
+
+        .file-upload-icon {
+            font-size: 3rem;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .tax-summary {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .tax-amount {
+            font-size: 2.5rem;
+            font-weight: bold;
+            text-align: center;
+            margin: 15px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .breakdown {
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e4ff;
+        }
+
+        .breakdown-item:last-child {
+            border-bottom: none;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .alert {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .regime-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .regime-card {
+            border: 2px solid #e0e4ff;
+            border-radius: 10px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .regime-card.active {
+            border-color: #667eea;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+        }
+
+        .deductions-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row, .deductions-grid, .regime-selector {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🇮🇳 Indian Income Tax Calculator - By NJ</h1>
+            <p>Calculate your income tax for FY 2024-25 (AY 2025-26)</p>
+        </div>
+
+        <div class="content">
+            <div class="form-section">
+                <h2 class="section-title">Personal Information & Form 16</h2>
+                
+                <div class="form-group">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" placeholder="Enter your full name">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="pan">PAN Number</label>
+                        <input type="text" id="pan" placeholder="ABCDE1234F" maxlength="10">
+                    </div>
+                    <div class="form-group">
+                        <label for="age">Age</label>
+                        <input type="number" id="age" placeholder="Enter your age" min="18" max="100">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="form16">Upload Form 16 (Optional)</label>
+                    <div class="file-upload" onclick="document.getElementById('form16').click()">
+                        <div class="file-upload-icon">📄</div>
+                        <p>Click to upload your Form 16 PDF</p>
+                        <small>We'll extract salary details automatically</small>
+                        <input type="file" id="form16" accept=".pdf,.jpg,.jpeg,.png">
+                    </div>
+                </div>
+
+                <h3 class="section-title">Tax Regime Selection</h3>
+                <div class="regime-selector">
+                    <div class="regime-card active" onclick="selectRegime('old')">
+                        <h4>Old Regime</h4>
+                        <p>With deductions under 80C, 80D, etc.</p>
+                    </div>
+                    <div class="regime-card" onclick="selectRegime('new')">
+                        <h4>New Regime</h4>
+                        <p>Lower rates, limited deductions</p>
+                    </div>
+                </div>
+
+                <h3 class="section-title">Income Details</h3>
+                
+                <div class="form-group">
+                    <label for="basicSalary">Basic Salary (Annual)</label>
+                    <input type="number" id="basicSalary" placeholder="Enter basic salary" oninput="calculateTax()">
+                </div>
+
+                <div class="form-group">
+                    <label for="hra">House Rent Allowance (HRA)</label>
+                    <input type="number" id="hra" placeholder="Enter HRA amount" oninput="calculateTax()">
+                </div>
+
+                <div class="form-group">
+                    <label for="otherAllowances">Other Allowances</label>
+                    <input type="number" id="otherAllowances" placeholder="Medical, Transport, etc." oninput="calculateTax()">
+                </div>
+
+                <div class="form-group">
+                    <label for="otherIncome">Other Income</label>
+                    <input type="number" id="otherIncome" placeholder="Interest, Rental, etc." oninput="calculateTax()">
+                </div>
+
+                <div id="deductionsSection">
+                    <h3 class="section-title">Deductions (Old Regime)</h3>
+                    
+                    <div class="deductions-grid">
+                        <div class="form-group">
+                            <label for="section80C">Section 80C (Max ₹1.5L)</label>
+                            <input type="number" id="section80C" placeholder="PPF, ELSS, etc." max="150000" oninput="calculateTax()">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="section80D">Section 80D (Health Insurance)</label>
+                            <input type="number" id="section80D" placeholder="Health insurance premium" max="75000" oninput="calculateTax()">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="hraExemption">HRA Exemption</label>
+                            <input type="number" id="hraExemption" placeholder="Calculated HRA exemption" oninput="calculateTax()">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="standardDeduction">Standard Deduction</label>
+                            <input type="number" id="standardDeduction" value="75000" readonly>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" onclick="calculateTax()">Calculate Tax</button>
+            </div>
+
+            <div class="results-section">
+                <h2 class="section-title">Tax Calculation</h2>
+                
+                <div class="tax-summary">
+                    <h3>Total Tax Payable</h3>
+                    <div class="tax-amount" id="totalTax">₹0</div>
+                </div>
+
+                <div class="breakdown" id="taxBreakdown">
+                    <h4>Tax Breakdown</h4>
+                    <div class="breakdown-item">
+                        <span>Gross Income:</span>
+                        <span id="grossIncome">₹0</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Total Deductions:</span>
+                        <span id="totalDeductions">₹0</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Taxable Income:</span>
+                        <span id="taxableIncome">₹0</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Income Tax:</span>
+                        <span id="incomeTax">₹0</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Surcharge:</span>
+                        <span id="surcharge">₹0</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Health & Education Cess:</span>
+                        <span id="cess">₹0</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Total Tax:</span>
+                        <span id="finalTax">₹0</span>
+                    </div>
+                </div>
+
+                <div class="alert" style="margin-top: 20px;">
+                    <strong>Note:</strong> This calculator provides an estimate. Please consult a tax professional for accurate calculations.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedRegime = 'old';
+
+        function selectRegime(regime) {
+            selectedRegime = regime;
+            document.querySelectorAll('.regime-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            event.target.closest('.regime-card').classList.add('active');
+            
+            const deductionsSection = document.getElementById('deductionsSection');
+            if (regime === 'new') {
+                deductionsSection.style.display = 'none';
+            } else {
+                deductionsSection.style.display = 'block';
+            }
+            calculateTax();
+        }
+
+        function formatCurrency(amount) {
+            return '₹' + amount.toLocaleString('en-IN');
+        }
+
+        function calculateTax() {
+            const basicSalary = parseFloat(document.getElementById('basicSalary').value) || 0;
+            const hra = parseFloat(document.getElementById('hra').value) || 0;
+            const otherAllowances = parseFloat(document.getElementById('otherAllowances').value) || 0;
+            const otherIncome = parseFloat(document.getElementById('otherIncome').value) || 0;
+            const age = parseInt(document.getElementById('age').value) || 25;
+
+            const grossIncome = basicSalary + hra + otherAllowances + otherIncome;
+
+            let totalDeductions = 0;
+            let taxableIncome = grossIncome;
+
+            if (selectedRegime === 'old') {
+                const section80C = Math.min(parseFloat(document.getElementById('section80C').value) || 0, 150000);
+                const section80D = Math.min(parseFloat(document.getElementById('section80D').value) || 0, 75000);
+                const hraExemption = parseFloat(document.getElementById('hraExemption').value) || 0;
+                const standardDeduction = 75000;
+
+                totalDeductions = section80C + section80D + hraExemption + standardDeduction;
+                taxableIncome = Math.max(0, grossIncome - totalDeductions);
+            } else {
+                // New regime - only standard deduction
+                totalDeductions = 75000;
+                taxableIncome = Math.max(0, grossIncome - totalDeductions);
+            }
+
+            let incomeTax = 0;
+            let taxFreeLimit = age < 60 ? 300000 : (age < 80 ? 300000 : 500000);
+
+            if (selectedRegime === 'old') {
+                taxFreeLimit = age < 60 ? 250000 : (age < 80 ? 300000 : 500000);
+                
+                if (taxableIncome > taxFreeLimit) {
+                    // Old regime tax slabs
+                    if (taxableIncome <= 500000) {
+                        incomeTax += (taxableIncome - taxFreeLimit) * 0.05;
+                    } else if (taxableIncome <= 1000000) {
+                        incomeTax += (500000 - taxFreeLimit) * 0.05;
+                        incomeTax += (taxableIncome - 500000) * 0.20;
+                    } else {
+                        incomeTax += (500000 - taxFreeLimit) * 0.05;
+                        incomeTax += 500000 * 0.20;
+                        incomeTax += (taxableIncome - 1000000) * 0.30;
+                    }
+                }
+            } else {
+                // New regime tax slabs (FY 2024-25)
+                if (taxableIncome > 300000) {
+                    if (taxableIncome <= 600000) {
+                        incomeTax += (taxableIncome - 300000) * 0.05;
+                    } else if (taxableIncome <= 900000) {
+                        incomeTax += 300000 * 0.05;
+                        incomeTax += (taxableIncome - 600000) * 0.10;
+                    } else if (taxableIncome <= 1200000) {
+                        incomeTax += 300000 * 0.05;
+                        incomeTax += 300000 * 0.10;
+                        incomeTax += (taxableIncome - 900000) * 0.15;
+                    } else if (taxableIncome <= 1500000) {
+                        incomeTax += 300000 * 0.05;
+                        incomeTax += 300000 * 0.10;
+                        incomeTax += 300000 * 0.15;
+                        incomeTax += (taxableIncome - 1200000) * 0.20;
+                    } else {
+                        incomeTax += 300000 * 0.05;
+                        incomeTax += 300000 * 0.10;
+                        incomeTax += 300000 * 0.15;
+                        incomeTax += 300000 * 0.20;
+                        incomeTax += (taxableIncome - 1500000) * 0.30;
+                    }
+                }
+            }
+
+            // Calculate surcharge
+            let surcharge = 0;
+            if (taxableIncome > 5000000) {
+                if (taxableIncome <= 10000000) {
+                    surcharge = incomeTax * 0.10;
+                } else if (taxableIncome <= 20000000) {
+                    surcharge = incomeTax * 0.15;
+                } else if (taxableIncome <= 50000000) {
+                    surcharge = incomeTax * 0.25;
+                } else {
+                    surcharge = incomeTax * 0.37;
+                }
+            }
+
+            // Health and Education Cess (4%)
+            const cess = (incomeTax + surcharge) * 0.04;
+            const totalTax = incomeTax + surcharge + cess;
+
+            // Update UI
+            document.getElementById('grossIncome').textContent = formatCurrency(grossIncome);
+            document.getElementById('totalDeductions').textContent = formatCurrency(totalDeductions);
+            document.getElementById('taxableIncome').textContent = formatCurrency(taxableIncome);
+            document.getElementById('incomeTax').textContent = formatCurrency(incomeTax);
+            document.getElementById('surcharge').textContent = formatCurrency(surcharge);
+            document.getElementById('cess').textContent = formatCurrency(cess);
+            document.getElementById('finalTax').textContent = formatCurrency(totalTax);
+            document.getElementById('totalTax').textContent = formatCurrency(totalTax);
+        }
+
+        // File upload handling
+        document.getElementById('form16').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const fileName = file.name;
+                const uploadArea = e.target.parentNode;
+                uploadArea.innerHTML = `
+                    <div class="file-upload-icon">✅</div>
+                    <p>File uploaded: ${fileName}</p>
+                    <small>Form 16 data extraction coming soon!</small>
+                `;
+                uploadArea.style.background = 'linear-gradient(135deg, rgba(76, 175, 80, 0.1), rgba(139, 195, 74, 0.1))';
+                uploadArea.style.borderColor = '#4CAF50';
+            }
+        });
+
+        // Auto-calculate HRA exemption
+        document.getElementById('basicSalary').addEventListener('input', function() {
+            const basicSalary = parseFloat(this.value) || 0;
+            const hra = parseFloat(document.getElementById('hra').value) || 0;
+            
+            if (basicSalary > 0 && hra > 0) {
+                // Simplified HRA calculation (assuming metro city)
+                const hraExemption = Math.min(hra, basicSalary * 0.5, hra - (basicSalary * 0.1));
+                document.getElementById('hraExemption').value = Math.max(0, hraExemption);
+            }
+        });
+
+        document.getElementById('hra').addEventListener('input', function() {
+            const basicSalary = parseFloat(document.getElementById('basicSalary').value) || 0;
+            const hra = parseFloat(this.value) || 0;
+            
+            if (basicSalary > 0 && hra > 0) {
+                const hraExemption = Math.min(hra, basicSalary * 0.5, hra - (basicSalary * 0.1));
+                document.getElementById('hraExemption').value = Math.max(0, hraExemption);
+            }
+        });
+
+        // Initial calculation
+        calculateTax();
+    </script>
+</body>
+</html>
